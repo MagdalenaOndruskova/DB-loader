@@ -1,0 +1,7 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY . .
+
+CMD ["bash", "-c", "while true; do python3 ingest_waze_data.py || true; echo 'Restarting in 5s...'; sleep 5; done"]

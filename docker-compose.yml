@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  db_brno:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: timescaledb_brno
+    environment:
+      POSTGRES_DB: traffic_brno
+      POSTGRES_USER: analyticity_brno
+      POSTGRES_PASSWORD: waze_admin
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/db_brno:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - analyticity-network
+
+  db_jmk:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: timescaledb_jmk
+    environment:
+      POSTGRES_DB: traffic_jmk
+      POSTGRES_USER: analyticity_jmk
+      POSTGRES_PASSWORD: waze_admin_jmk
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/db_jmk:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - analyticity-network
+
+  db_orp_most:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: timescaledb_orp_most
+    environment:
+      POSTGRES_DB: traffic_orp_most
+      POSTGRES_USER: analyticity_orp_most
+      POSTGRES_PASSWORD: waze_admin_orp_most
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/db_orp_most:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - analyticity-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db_brno
+      - db_jmk
+      - db_orp_most
+    restart: unless-stopped
+    networks:
+      - analyticity-network
+
+networks:
+  analyticity-network:
+    external: true
